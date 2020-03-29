@@ -97,19 +97,19 @@ class Solver:
             _, g, h, moves = q.get()
             x, y = self.get_updated_zero(moves)
             print('x, y : ', x, y)
-            # if g == 1:
+            # if g == 3:
             #     exit()
             for X, Y, move in (x + 1, y, "R"), (x - 1, y, "L"), (x, y + 1, "U"), (x, y - 1, "D"):
                 if 0 <= X < self.len and 0 <= Y < self.len and move != self.get_opposite_move(moves[-1]):
                     new_moves = moves[:]
                     new_moves.append(move)
                     new_graph = self.get_updated_graph(deepcopy(graph), new_moves)
-                    if self.is_solved(new_graph):
-                        print(new_moves)
-                        return new_moves
-                    print('h : ', h)
+                    # print('h : ', h)
                     new_h = self.manhattan_distance(new_graph)
-                    print('new_h : ', new_h)
+                    if new_h == 0:
+                        # print(new_moves)
+                        return new_moves[1:]
+                    # print('new_h : ', new_h)
+                    # print('g : ', g)
                     self.print_graph(new_graph)
-                    if new_h < h:
-                        q.put((g + 1 + h, g + 1, h, new_moves))
+                    q.put((g + 1 + new_h, g + 1, new_h, new_moves))
