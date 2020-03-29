@@ -8,9 +8,7 @@ for line in sys.stdin:
 
 matrix = parse()
 solver = Solver(matrix)
-print(matrix)
-print(solver.is_solved(matrix))
-print(solver.manhattan_distance(matrix))
+# print(matrix)
+# print(solver.is_solved(matrix))
+# print(solver.manhattan_distance(matrix))
 print(solver.solve(matrix))
-print(solver.x)
-print(solver.y)

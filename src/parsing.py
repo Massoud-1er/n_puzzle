@@ -21,7 +21,7 @@ def parse():
                 for val in raw:
                     if val.isnumeric() and len(matrix_raw) <= size:
                         matrix_raw.append(int(val))
-                print(matrix_raw)
+                # print(matrix_raw)
                 matrix.append(matrix_raw)
-    print(matrix)
+    # print(matrix)
     return matrix

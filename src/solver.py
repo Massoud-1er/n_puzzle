@@ -73,26 +73,43 @@ class Solver:
     
     """ g == number of step taken, h = heuristic cost, f == g + h"""
 
+    def get_opposite_move(self, move):
+        if move == "L":
+            return "R"
+        if move == "R":
+            return "L"
+        if move == "U":
+            return "D"
+        if move == "D":
+            return "U"
+
+    def     print_graph(self, graph):
+        print()
+        [print(x) for x in graph]
+
     def solve(self, graph):
 
         q = queue.PriorityQueue()
         h = self.manhattan_distance(graph)
-        q.put((h, 0, h, []))
+        q.put((h, 0, h, [""]))
 
         while not q.empty():
             _, g, h, moves = q.get()
             x, y = self.get_updated_zero(moves)
-
+            print('x, y : ', x, y)
             # if g == 1:
             #     exit()
             for X, Y, move in (x + 1, y, "R"), (x - 1, y, "L"), (x, y + 1, "U"), (x, y - 1, "D"):
-                if 0 <= X < self.len and 0 <= Y < self.len:
-                    g += 1
+                if 0 <= X < self.len and 0 <= Y < self.len and move != self.get_opposite_move(moves[-1]):
                     new_moves = moves[:]
                     new_moves.append(move)
                     new_graph = self.get_updated_graph(deepcopy(graph), new_moves)
                     if self.is_solved(new_graph):
-                        return moves
-                    h = self.manhattan_distance(new_graph)
-                    # print("appending : ", (g + h, g, h, moves))
-                    q.put((g + h, g, h, new_moves))
+                        print(new_moves)
+                        return new_moves
+                    print('h : ', h)
+                    new_h = self.manhattan_distance(new_graph)
+                    print('new_h : ', new_h)
+                    self.print_graph(new_graph)
+                    if new_h < h:
+                        q.put((g + 1 + h, g + 1, h, new_moves))
