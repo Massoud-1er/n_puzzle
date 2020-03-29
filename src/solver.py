@@ -1,4 +1,5 @@
 import queue
+from copy import deepcopy
 
 class Solver:
     def __init__(self, graph):
@@ -67,13 +68,13 @@ class Solver:
                 if graph[i][j]:
                     x = (graph[i][j] - 1) % self.len
                     y = (graph[i][j] - 1) // self.len
-                    print('graph[i][j], x, y : ', graph[i][j], x, y)
                     total += abs(x - j) + abs(y - i)
         return total
     
     """ g == number of step taken, h = heuristic cost, f == g + h"""
 
     def solve(self, graph):
+
         q = queue.PriorityQueue()
         h = self.manhattan_distance(graph)
         q.put((h, 0, h, []))
@@ -82,12 +83,16 @@ class Solver:
             _, g, h, moves = q.get()
             x, y = self.get_updated_zero(moves)
 
+            # if g == 1:
+            #     exit()
             for X, Y, move in (x + 1, y, "R"), (x - 1, y, "L"), (x, y + 1, "U"), (x, y - 1, "D"):
                 if 0 <= X < self.len and 0 <= Y < self.len:
                     g += 1
-                    moves.append(move)
-                    new_graph = self.get_updated_graph(graph[:], moves)
+                    new_moves = moves[:]
+                    new_moves.append(move)
+                    new_graph = self.get_updated_graph(deepcopy(graph), new_moves)
                     if self.is_solved(new_graph):
                         return moves
                     h = self.manhattan_distance(new_graph)
-                    q.put((g + h, g, h, moves))
+                    # print("appending : ", (g + h, g, h, moves))
+                    q.put((g + h, g, h, new_moves))
