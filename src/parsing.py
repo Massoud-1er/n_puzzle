@@ -1,14 +1,14 @@
-
 import sys
+from .solver import Solver
 
 lines = []
 for line in sys.stdin:
 	lines.append(line.rstrip('\n'))
 
-
 matrix = []
 
 def parse():
+    matrix = []
     size = 0
     for l in lines:
         line = l.split('#')
@@ -24,5 +24,4 @@ def parse():
                 print(matrix_raw)
                 matrix.append(matrix_raw)
     print(matrix)
-
-parse()
+    return matrix
