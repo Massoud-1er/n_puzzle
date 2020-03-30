@@ -1,11 +1,26 @@
 import queue
 from copy import deepcopy
+import numpy
 
 class Solver:
     def __init__(self, graph):
         self.graph = graph
         self.len = len(graph)
         self.x, self.y = self.coor_zero(graph)
+        self.goal = self.get_goal(graph)
+
+    def get_goal(self, graph):
+        goal = [0] * self.len * self.len
+        dx, dy = [0, 1, 0, -1], [1, 0, -1, 0]
+        x, y, c = 0, -1, 1
+        for i in range(self.len * 2 - 2):
+            for j in range((self.len * 2 - i) // 2):
+                x += dx[i % 4]
+                y += dy[i % 4]
+                goal[x * self.len + y] = c
+                c += 1
+        return goal
+
 
     def is_solved(self, graph):
         prev = graph[0][0]
@@ -66,8 +81,8 @@ class Solver:
         for i in range(self.len):
             for j in range(self.len):
                 if graph[i][j]:
-                    x = (graph[i][j] - 1) % self.len
-                    y = (graph[i][j] - 1) // self.len
+                    y = self.goal.index(graph[i][j]) // self.len
+                    x = self.goal.index(graph[i][j]) % self.len
                     total += abs(x - j) + abs(y - i)
         return total
     
@@ -96,7 +111,7 @@ class Solver:
         while not q.empty():
             _, g, h, moves = q.get()
             x, y = self.get_updated_zero(moves)
-            print('x, y : ', x, y)
+            # print('x, y : ', x, y)
             # if g == 3:
             #     exit()
             for X, Y, move in (x + 1, y, "R"), (x - 1, y, "L"), (x, y + 1, "U"), (x, y - 1, "D"):
@@ -107,9 +122,7 @@ class Solver:
                     # print('h : ', h)
                     new_h = self.manhattan_distance(new_graph)
                     if new_h == 0:
-                        # print(new_moves)
+                        self.print_graph(new_graph)
                         return new_moves[1:]
-                    # print('new_h : ', new_h)
-                    # print('g : ', g)
-                    self.print_graph(new_graph)
+
                     q.put((g + 1 + new_h, g + 1, new_h, new_moves))
