@@ -7,6 +7,7 @@ for line in sys.stdin:
 	lines.append(line.rstrip('\n'))
 
 matrix = parse()
+matrix = [x for y in matrix for x in y]
 solver = Solver(matrix)
 
 print(solver.solve(matrix))
