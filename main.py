@@ -31,6 +31,7 @@ if len(sys.argv) > 1:
 solver = Solver(matrix, get_end_condition(h))
 
 t_start = perf_counter()
-print(solver.solve(matrix, heuristics[h]))
+moves, MAX, total_node = solver.solve(matrix, heuristics[h])
+print('moves, MAX, total_node : ', moves, MAX, total_node)
 t_end = perf_counter() - t_start
 print('Duration:' + ' %.4f seconds' % (t_end))

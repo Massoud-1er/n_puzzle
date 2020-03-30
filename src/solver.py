@@ -44,10 +44,6 @@ class Solver:
         if move == "D":
             return "U"
 
-    # def     print_graph(self, graph):
-    #     print()
-    #     [print(x) for x in graph]
-
     """ adds 65 ('A' in ascii) to make the hash printable """
     def get_hash(self, graph):
         return ''.join([chr(x + 65) for x in graph])
@@ -59,8 +55,10 @@ class Solver:
         ghash = self.get_hash(graph)
         seen = {}
         q.put((h, 0, h, [""], self.zero, graph, ghash))
+        MAX = 0
+        total_node = 0
         while not q.empty():
-            
+            MAX = max(MAX, q.qsize())
             f, g, h, moves, x, graph, ghash = q.get()
             if ghash in seen:
                 continue
@@ -68,8 +66,8 @@ class Solver:
                 seen[ghash] = f
 
             if self.end_condition(h, self.goal, graph):
-                print(graph)
-                return moves[1:]
+                print("result:", graph)
+                return moves[1:], MAX, total_node
 
             for X, move in (x + 1, "R"), (x - 1, "L"), (x + self.len, "D"), (x - self.len, "U"):    
                 if 0 <= X < self.size and move != self.get_opposite_move(moves[-1]):
@@ -79,9 +77,11 @@ class Solver:
                     if ghash not in seen:
                         new_h = heuristic(new_graph, self.goal, self.len)
                         new_h *= 1.0001
+                        total_node += 1
                         q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))
                     else:
                         new_h = heuristic(new_graph, self.goal, self.len)
                         new_h *= 1.0001
                         if g + 1 + new_h < seen[ghash]:
+                            total_node += 1
                             q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))
