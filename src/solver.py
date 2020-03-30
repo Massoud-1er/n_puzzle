@@ -7,7 +7,7 @@ class Solver:
     def __init__(self, graph):
         self.graph = graph
         self.len = math.floor(math.sqrt(len(graph)))
-        self.len2 = len(graph)
+        self.size = len(graph)
         self.zero = self.coor_zero(graph)
         self.goal = self.get_goal(graph)
 
@@ -23,6 +23,8 @@ class Solver:
                 c += 1
         print('goal : ', goal)
         return goal
+
+    """ get index of empty tile """
 
     def coor_zero(self, graph):
         for i in range(len(graph)):
@@ -65,13 +67,12 @@ class Solver:
 
         q = queue.PriorityQueue()
         h = self.manhattan_distance(graph)
+        ghash = self.get_hash(graph)
         seen = {}
-        # seen[self.get_hash(graph)] = 0 + h
-        q.put((h, 0, h, [""], self.zero, graph))
+        q.put((h, 0, h, [""], self.zero, graph, ghash))
         while not q.empty():
             
-            f, g, h, moves, x, graph = q.get()
-            ghash = self.get_hash(graph)
+            f, g, h, moves, x, graph, ghash = q.get()
             if ghash in seen:
                 continue
             else:
@@ -80,18 +81,17 @@ class Solver:
             if h == 0:
                 print(graph)
                 return moves[1:]
-            print('g : ', g)
             for X, move in (x + 1, "R"), (x - 1, "L"), (x + self.len, "D"), (x - self.len, "U"):    
-                if 0 <= X < self.len2 and move != self.get_opposite_move(moves[-1]):
+                if 0 <= X < self.size and move != self.get_opposite_move(moves[-1]):
                     new_graph = graph[:]
                     new_graph[x], new_graph[X] = new_graph[X], new_graph[x]
                     ghash = self.get_hash(new_graph)
                     if ghash not in seen:
                         new_h = self.manhattan_distance(new_graph)
                         new_h *= 1.0001
-                        q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph))
+                        q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))
                     else:
                         new_h = self.manhattan_distance(new_graph)
                         new_h *= 1.0001
                         if g + 1 + new_h < seen[ghash]:
-                            q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph))
+                            q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))
