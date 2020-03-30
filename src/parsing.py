@@ -10,6 +10,12 @@ matrix = []
 def parse():
     matrix = []
     size = 0
+    solvable = lines.pop(0)
+    
+    if "unsolvable" in solvable:
+        print("unsolvable !")
+        exit(0)
+    
     for l in lines:
         line = l.split('#')
         if line[0].isnumeric():

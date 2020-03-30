@@ -1,6 +1,6 @@
 import queue
 from copy import deepcopy
-import numpy
+import numpy as np
 
 class Solver:
     def __init__(self, graph):
@@ -34,42 +34,18 @@ class Solver:
     def coor_zero(self, graph):
         for y in range(self.len):
             for x in range(self.len):
-                if not graph[y][x]:
+                if graph[y][x] == 0:
                     return x, y
-
-    def get_updated_zero(self, moves):
-        x = self.x
-        y = self.y
-
-        for m in moves:
-            if m == "L":
-                x -= 1
-            elif m == "R":
-                x += 1
-            elif m == "U":
-                y += 1
-            elif m == "D":
-                y -= 1
-
-        return x, y
     
-    def get_updated_graph(self, graph, moves):
-        x = self.x
-        y = self.y
-
-        for m in moves:
-            if m == "L":
-                graph[y][x], graph[y][x - 1] = graph[y][x - 1], graph[y][x]
-                x -= 1
-            elif m == "R":
-                graph[y][x], graph[y][x + 1] = graph[y][x + 1], graph[y][x]
-                x += 1
-            elif m == "U":
-                graph[y][x], graph[y + 1][x] = graph[y + 1][x], graph[y][x]
-                y += 1
-            elif m == "D":
-                graph[y][x], graph[y - 1][x] = graph[y - 1][x], graph[y][x]
-                y -= 1
+    def get_updated_graph(self, graph, move, x, y):
+        if move == "L":
+            graph[y][x + 1], graph[y][x] = graph[y][x], graph[y][x + 1]
+        elif move == "R":
+            graph[y][x - 1], graph[y][x] = graph[y][x], graph[y][x - 1]
+        elif move == "D":
+            graph[y - 1][x], graph[y][x] = graph[y][x], graph[y - 1][x]
+        elif move == "U":
+            graph[y + 1][x], graph[y][x] = graph[y][x], graph[y + 1][x]
 
         return graph
 
@@ -83,7 +59,7 @@ class Solver:
                 if graph[i][j]:
                     y = self.goal.index(graph[i][j]) // self.len
                     x = self.goal.index(graph[i][j]) % self.len
-                    total += abs(x - j) + abs(y - i)
+                    total += abs(j - x) + abs(i - y)
         return total
     
     """ g == number of step taken, h = heuristic cost, f == g + h"""
@@ -102,27 +78,31 @@ class Solver:
         print()
         [print(x) for x in graph]
 
+    """ adds 65 ('A' in ascii) to make the hash printable """
+    def get_hash(self, graph):
+        return ''.join([chr(x + 65) for y in graph for x in y])
+
     def solve(self, graph):
 
         q = queue.PriorityQueue()
         h = self.manhattan_distance(graph)
-        q.put((h, 0, h, [""]))
-
+        seen = {}
+        seen[self.get_hash(graph)] = 0 + h
+        q.put((h, 0, h, [""], self.x, self.y, graph))
         while not q.empty():
-            _, g, h, moves = q.get()
-            x, y = self.get_updated_zero(moves)
-            # print('x, y : ', x, y)
-            # if g == 3:
-            #     exit()
-            for X, Y, move in (x + 1, y, "R"), (x - 1, y, "L"), (x, y + 1, "U"), (x, y - 1, "D"):
+            _, g, h, moves, x, y, graph = q.get()
+
+            for X, Y, move in (x + 1, y, "R"), (x - 1, y, "L"), (x, y + 1, "D"), (x, y - 1, "U"):    
                 if 0 <= X < self.len and 0 <= Y < self.len and move != self.get_opposite_move(moves[-1]):
-                    new_moves = moves[:]
-                    new_moves.append(move)
-                    new_graph = self.get_updated_graph(deepcopy(graph), new_moves)
-                    # print('h : ', h)
+                    new_graph = self.get_updated_graph(deepcopy(graph), move, X, Y)
+                
                     new_h = self.manhattan_distance(new_graph)
                     if new_h == 0:
                         self.print_graph(new_graph)
-                        return new_moves[1:]
-
-                    q.put((g + 1 + new_h, g + 1, new_h, new_moves))
+                        return moves[1:] + [move]
+                    
+                    # new_h *= 1.0005
+                    ghash = self.get_hash(new_graph)
+                    if ghash not in seen or g + 1 + new_h < seen[ghash]:
+                        seen[ghash] = g + 1 + new_h
+                        q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, Y, new_graph))
