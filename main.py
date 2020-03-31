@@ -21,17 +21,28 @@ for line in sys.stdin:
 matrix = parse()
 matrix = [x for y in matrix for x in y]
 
-h = "manhattan"
-if len(sys.argv) > 1:
-	if sys.argv[1] == "hamming":
-		h = "hamming"
-	elif sys.argv[1] == "djikstra":
-		h = "djikstra"
+def option():
+	h = "manhattan"
+	algo = "a_star"
+	try:
+		if '-h' in sys.argv and sys.argv[sys.argv.index('-h') + 1] in heuristics.keys():
+			h = sys.argv[sys.argv.index('-h') + 1]
+
+		if '-adi' in sys.argv:
+			algo = 'adi_star'
+		
+		return h, algo
+	except:
+		print('wrong argument, usage...')
+		exit(1)
+
+
+h, algo = option()
 
 solver = Solver(matrix, get_end_condition(h))
 
 t_start = perf_counter()
-moves, MAX, total_node = solver.solve(matrix, heuristics[h])
+moves, MAX, total_node = solver.solve(matrix, heuristics[h], algo)
 print('moves, MAX, total_node : ', moves, MAX, total_node)
 t_end = perf_counter() - t_start
 print('Duration:' + ' %.4f seconds' % (t_end))
