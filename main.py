@@ -45,8 +45,8 @@ def option():
 		if '-h' in sys.argv and sys.argv[sys.argv.index('-h') + 1] in heuristics.keys():
 			h = sys.argv[sys.argv.index('-h') + 1]
 
-		if '-adi' in sys.argv:
-			algo = 'adi_star'
+		if '-ida' in sys.argv:
+			algo = 'ida_star'
 		
 		return h, algo
 	except:
@@ -63,8 +63,8 @@ moves, MAX, total_node = solver.solve(matrix, heuristics[h], algo)
 
 print_final_states(matrix, moves, solver)
 
-print("Total number of states :", MAX)
-print("Maximum number of states in memory :", total_node)
+print("Total number of states :", total_node)
+print("Maximum number of states in memory :", MAX)
 print('Number of moves :', len(moves))
 t_end = perf_counter() - t_start
 print('Duration:' + ' %.4f seconds' % (t_end))
