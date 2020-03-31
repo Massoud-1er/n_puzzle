@@ -12,6 +12,14 @@ class Solver:
         self.goal = self.get_goal(graph)
         self.end_condition = end_condition
 
+    def get_adj(self, x):
+	    ret = [(x + self.len, "D"), (x - self.len, "U")]
+	    if x % self.len != 0:
+	    	ret.append((x - 1, "L"))
+	    if (x + 1) % self.len != 0:
+	    	ret.append((x + 1, "R"))
+	    return ret
+
     def get_goal(self, graph):
         goal = [0] * self.len * self.len
         dx, dy = [0, 1, 0, -1], [1, 0, -1, 0]
@@ -69,7 +77,7 @@ class Solver:
                 print("result:", graph)
                 return moves[1:], MAX, total_node
 
-            for X, move in (x + 1, "R"), (x - 1, "L"), (x + self.len, "D"), (x - self.len, "U"):    
+            for X, move in self.get_adj(x):
                 if 0 <= X < self.size and move != self.get_opposite_move(moves[-1]):
                     new_graph = graph[:]
                     new_graph[x], new_graph[X] = new_graph[X], new_graph[x]
