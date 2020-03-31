@@ -11,6 +11,7 @@ class Solver:
         self.zero = self.coor_zero(graph)
         self.goal = self.get_goal(graph)
         self.end_condition = end_condition
+        self.total_state_stored = 0
 
     def get_adj(self, x):
 	    ret = [(x + self.len, "D"), (x - self.len, "U")]
@@ -90,6 +91,7 @@ class Solver:
 
     def depth_search(self, graph, moves, treshold, g, x, heuristic):
 
+        self.total_state_stored += 1
         h = heuristic(graph, self.goal, self.len)
         f = h + g
 
@@ -120,14 +122,14 @@ class Solver:
         while True:
             ret = self.depth_search(graph, ["start"], treshold, 0, self.zero, heuristic)
             if type(ret) == list:
-                return ret[1:], 0, 0
+                return ret[1:], len(ret), self.total_state_stored
             elif ret == float('inf'):
                 break
             else:
                 treshold = ret
     
     def solve(self, graph, heuristic, algo):
-        if algo == 'adi_star':
-            return self.ida_star(graph, heuristic)            
+        if algo == 'ida_star':
+            return self.ida_star(graph, heuristic)          
         else:
             return self.a_star(graph, heuristic)
