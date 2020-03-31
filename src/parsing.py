@@ -9,10 +9,28 @@ matrix = []
 
 def print_usage():
     print('wrong parameter: python3 main.py < input_file.txt')
-    print('/t/t/t/tThe options are as follows:')
-    print('/t/t/t/t-h [ manhattan (default), djikstra, hamming, conflict ]')
-    print('/t/t/t/t-ida Iterative Deepening A Star search Algorithm instead of default A Star Algorithm')
+    print('         The options are as follows:')
+    print('         -h [ manhattan (default), djikstra, hamming, conflict ]')
+    print('         -ida Iterative Deepening A Star search Algorithm instead of default A Star Algorithm')
     exit(1)
+
+def option():
+	h = "manhattan"
+	algo = "a_star"
+	try:
+		for idx, arg in enumerate(sys.argv):
+			if arg == '-h' and sys.argv[idx + 1] in heuristics.keys():
+				h = sys.argv[idx + 1]
+
+			elif arg == '-ida':
+				algo = 'ida_star'
+			
+			elif sys.argv[idx - 1] != '-h' and arg != 'main.py':
+				print_usage()
+
+		return h, algo
+	except:
+		print_usage()
 
 def parse():
     matrix = []
@@ -42,6 +60,4 @@ def parse():
                 print_usage()
         else:
             print_usage()
-    print(matrix)
-    exit(1)
     return matrix

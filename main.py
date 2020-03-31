@@ -1,6 +1,6 @@
 import sys
 from src.solver import Solver
-from src.parsing import parse, print_usage
+from src.parsing import parse, print_usage, option
 from time import perf_counter
 from src.heuristic import heuristics
 
@@ -30,21 +30,6 @@ def get_end_condition(h):
 		def end_on_zero(h, _, __):
 			return h == 0
 		return end_on_zero
-
-def option():
-	h = "manhattan"
-	algo = "a_star"
-	try:
-		if '-h' in sys.argv and sys.argv[sys.argv.index('-h') + 1] in heuristics.keys():
-			h = sys.argv[sys.argv.index('-h') + 1]
-
-		elif '-ida' in sys.argv:
-			algo = 'ida_star'
-		
-
-		return h, algo
-	except:
-		print_usage()
 
 matrix = parse()
 
