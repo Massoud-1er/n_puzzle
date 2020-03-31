@@ -1,6 +1,6 @@
 import sys
 from src.solver import Solver
-from src.parsing import parse
+from src.parsing import parse, print_usage
 from time import perf_counter
 from src.heuristic import heuristics
 
@@ -31,13 +31,6 @@ def get_end_condition(h):
 			return h == 0
 		return end_on_zero
 
-lines = []
-for line in sys.stdin:
-	lines.append(line.rstrip('\n'))
-
-matrix = parse()
-matrix = [x for y in matrix for x in y]
-
 def option():
 	h = "manhattan"
 	algo = "a_star"
@@ -45,14 +38,15 @@ def option():
 		if '-h' in sys.argv and sys.argv[sys.argv.index('-h') + 1] in heuristics.keys():
 			h = sys.argv[sys.argv.index('-h') + 1]
 
-		if '-ida' in sys.argv:
+		elif '-ida' in sys.argv:
 			algo = 'ida_star'
 		
+
 		return h, algo
 	except:
-		print('wrong argument, usage...')
-		exit(1)
+		print_usage()
 
+matrix = parse()
 
 h, algo = option()
 
