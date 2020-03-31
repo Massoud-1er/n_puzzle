@@ -72,7 +72,6 @@ class Solver:
             if ghash in seen:
                 continue
             seen[ghash] = f
-
             if self.end_condition(h, self.goal, graph):
                 print("result:", graph)
                 return moves[1:], MAX, total_node

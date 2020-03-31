@@ -63,8 +63,8 @@ moves, MAX, total_node = solver.solve(matrix, heuristics[h], algo)
 
 print_final_states(matrix, moves, solver)
 
-print("Total number of states :", MAX)
-print("Maximum number of states in memory :", total_node)
+print("Total number of states :", total_node)
+print("Maximum number of states in memory :", MAX)
 print('Number of moves :', len(moves))
 t_end = perf_counter() - t_start
 print('Duration:' + ' %.4f seconds' % (t_end))
