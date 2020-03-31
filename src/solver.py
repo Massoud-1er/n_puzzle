@@ -68,10 +68,10 @@ class Solver:
         while not q.empty():
             MAX = max(MAX, q.qsize())
             f, g, h, moves, x, graph, ghash = q.get()
+            
             if ghash in seen:
                 continue
-            else:
-                seen[ghash] = f
+            seen[ghash] = f
 
             if self.end_condition(h, self.goal, graph):
                 print("result:", graph)
@@ -82,17 +82,11 @@ class Solver:
                     new_graph = graph[:]
                     new_graph[x], new_graph[X] = new_graph[X], new_graph[x]
                     ghash = self.get_hash(new_graph)
-                    if ghash not in seen:
-                        new_h = heuristic(new_graph, self.goal, self.len)
-                        new_h *= 1.0001
+                    new_h = heuristic(new_graph, self.goal, self.len)
+                    new_h *= 1.0001
+                    if ghash not in seen or g + 1 + new_h < seen[ghash]:
                         total_node += 1
                         q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))
-                    else:
-                        new_h = heuristic(new_graph, self.goal, self.len)
-                        new_h *= 1.0001
-                        if g + 1 + new_h < seen[ghash]:
-                            total_node += 1
-                            q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))
 
     def depth_search(self, graph, moves, treshold, g, x, heuristic):
 
