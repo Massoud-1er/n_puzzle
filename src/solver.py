@@ -82,7 +82,7 @@ class Solver:
                     new_graph[x], new_graph[X] = new_graph[X], new_graph[x]
                     ghash = self.get_hash(new_graph)
                     new_h = heuristic(new_graph, self.goal, self.len)
-                    new_h *= 1.0001
+                    new_h *= 1.001
                     if ghash not in seen or g + 1 + new_h < seen[ghash]:
                         total_node += 1
                         q.put((g + 1 + new_h, g + 1, new_h, moves + [move], X, new_graph, ghash))

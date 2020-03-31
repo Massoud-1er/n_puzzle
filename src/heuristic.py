@@ -72,14 +72,14 @@ def check_axis(val, index, axis, graph):
     if axis:
         for j in goal_row[index]:
             if j != 0 and j != val and index_y[graph.index(j)] is index:
-                if (index_x[graph.index(j)] > goal_x[j] and index_x[graph.index(val)] < goal_x[val]) \
-                    or (index_x[graph.index(j)] < goal_x[j] and index_x[graph.index(val)] > goal_x[val]):
+                if (index_x[graph.index(j)] > goal_x[j] and index_x[graph.index(val)] < goal_x[val] and goal_x[j] < goal_x[val]) \
+                    or (index_x[graph.index(j)] < goal_x[j] and index_x[graph.index(val)] > goal_x[val] and goal_x[j] > goal_x[val]):
                     total += 2
     else:
         for j in goal_col[index]:
             if j != 0 and j != val and index_x[graph.index(j)] is index:
-                if (index_y[graph.index(j)] > goal_y[j] and index_y[graph.index(val)] < goal_y[val]) \
-                    or (index_y[graph.index(j)] < goal_y[j] and index_y[graph.index(val)] > goal_y[val]):
+                if (index_y[graph.index(j)] > goal_y[j] and index_y[graph.index(val)] < goal_y[val] and goal_y[j] < goal_y[val]) \
+                    or (index_y[graph.index(j)] < goal_y[j] and index_y[graph.index(val)] > goal_y[val] and goal_y[j] > goal_y[val]):
                     total += 2
     return total
 
