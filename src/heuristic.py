@@ -1,12 +1,16 @@
+from math import sqrt, floor
+from itertools import permutations
+
 """ global array kep in memory for performance. """
-goal_x = []
-goal_y = []
+goal_coor = { 'x': [], 'y': [] }
 
-index_x = []
-index_y = []
+indices = { 'x': [], 'y': [] }
 
-goal_col = []
-goal_row = []
+goals = { 'row': [], 'col': [] }
+
+conflict = {}
+
+_len = 0
 
 """ helper function to keep in memory X and Y goal for every values. 
 
@@ -26,27 +30,27 @@ def memorize_goal(goal, length):
         rows[y][x] = i
         cols[x][y] = i
         
-        goal_x.append(x)
-        goal_y.append(y)
+        goal_coor['x'].append(x)
+        goal_coor['y'].append(y)
 
-        index_x.append(idx_x)
-        index_y.append(idx_y)
+        indices['x'].append(idx_x)
+        indices['y'].append(idx_y)
     
     for x in rows:
-        goal_row.append(x)
+        goals['row'].append(x)
     for x in cols:
-        goal_col.append(x)
+        goals['col'].append(x)
 
 """ Manhattan Distance of a tile is the distance or the number of slides/tiles away it is from it’s goal state.
 Thus, for a certain state the Manhattan distance will be the sum of the Manhattan distances of all the tiles except the blank tile."""
 
 def manhattan(graph, goal, length):
     total = 0
-    if not len(goal_x) or not len(goal_y):
+    if not len(goal_coor['x']) or not len(goal_coor['y']):
         memorize_goal(goal, length)
     for i in range(len(graph)):
         if graph[i]:
-            total += abs(index_x[i] - goal_x[graph[i]]) + abs(index_y[i] - goal_y[graph[i]])
+            total += abs(indices['x'][i] - goal_coor['x'][graph[i]]) + abs(indices['y'][i] - goal_coor['y'][graph[i]])
     return total
 
 """ The Hamming distance is the total number of misplaced tiles."""
@@ -65,45 +69,64 @@ def djikstra(graph, goal, _):
 
 """ Linear Conflict """
 
-""" If Axis is true, checks row otherwise checks colomns. """
+""" Check for linear conflict row by row. """
 
-def check_axis(val, index, axis, graph):
+def check_row(row, _goal_row, index, axis):
     total = 0
-    if axis:
-        for j in goal_row[index]:
-            if j != 0 and j != val and index_y[graph.index(j)] is index:
-                if (index_x[graph.index(j)] > goal_x[j] and index_x[graph.index(val)] < goal_x[val] and goal_x[j] < goal_x[val]) \
-                    or (index_x[graph.index(j)] < goal_x[j] and index_x[graph.index(val)] > goal_x[val] and goal_x[j] > goal_x[val]):
-                    total += 2
-    else:
-        for j in goal_col[index]:
-            if j != 0 and j != val and index_x[graph.index(j)] is index:
-                if (index_y[graph.index(j)] > goal_y[j] and index_y[graph.index(val)] < goal_y[val] and goal_y[j] < goal_y[val]) \
-                    or (index_y[graph.index(j)] < goal_y[j] and index_y[graph.index(val)] > goal_y[val] and goal_y[j] > goal_y[val]):
-                    total += 2
+    for i, x in enumerate(row):
+        if x and goal_coor['y'][x] is index:
+            for j, y in enumerate(row):
+                if i is not j and y and goal_coor['y'][y] is index:
+                    if i < j and goal_coor['x'][x] > goal_coor['x'][y] \
+                        or i > j and goal_coor['x'][x] < goal_coor['x'][y]:
+                        total += 1
     return total
 
-def linear_conflict(graph, goal, _):
-    total = 0
-    for i in range(len(graph)):
-       if graph[i]:
-           x = index_x[i]
-           y = index_y[i]
-           _goal_x = goal_x[graph[i]]
-           _goal_y = goal_y[graph[i]]
+""" Keeps in memory value of manhattan conflict for each row. """
 
-           if y == _goal_y:
-               total += check_axis(graph[i], y, True, graph)
-           if x == _goal_x:
-               total += check_axis(graph[i], x, False, graph)
+def manhattan_row(row, index):
+    total = 0
+    for i, val in enumerate(row):
+        if val:
+            total += abs(i - goal_coor['x'][val]) + abs(index - goal_coor['y'][val])
     return total
+
+def linear_conflict(graph, goal, length):
+    total = 0
+    for i in range(_len):
+        row = tuple([graph[i * _len + x] for x in range(_len)])
+        col = tuple([graph[i + x * _len] for x in range(_len)])
+        
+        if row not in conflict['row'][i]:
+            conflict['row'][i][row] = check_row(row, goals['row'][i], i, 'row')
+            conflict['row'][i][row] += manhattan_row(row, i)
+            total += conflict['row'][i][row]
+        else:
+            total += conflict['row'][i][row]
+            
+        if col not in conflict['col'][i]:
+            conflict['col'][i][col] = check_row(col, goals['col'][i], i, 'col')
+            total += conflict['col'][i][col]
+        else:
+            total += conflict['col'][i][col]
+    return total
+
+""" Keeps values in memory and calls linear conflict """
 
 def LC(graph, goal, length):
-    return manhattan(graph, goal, length) + linear_conflict(graph, goal, length)
+    if 'row' not in conflict or 'col' not in conflict:
+        conflict['row'] = [{} for x in range(length)]
+        conflict['col'] = [{} for x in range(length)]
+        global _len
+        _len = floor(sqrt(len(graph)))
+    if not len(goal_coor['x']) or not len(goal_coor['y']):
+        memorize_goal(goal, length)
+
+    return linear_conflict(graph, goal, length)
 
 heuristics = {
     'hamming':      hamming,
     'manhattan':    manhattan,
-    'djikstra':    djikstra,
-    'conflict':    LC
+    'djikstra':     djikstra,
+    'conflict':     LC
 }

@@ -30,7 +30,10 @@ class Solver:
                 y += dy[i % 4]
                 goal[x * self.len + y] = c
                 c += 1
-        print('goal : ', goal)
+        
+        for i in range(self.len):
+            print('goal : ', goal[i * self.len: (i + 1) * (self.len)])
+
         return goal
 
     """ get index of empty tile """
